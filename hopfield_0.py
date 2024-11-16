@@ -15,17 +15,18 @@ def calculate_configuration_energy(configuration, weights, update = False):
             h += wij*i*j
         
         if update:
-            i = update_rule(h, i)
+            configuration[idx_i] = update_rule(h, i)
 
         configuration_energy += h
 
     return configuration_energy
 
 
-def update_rule(h, i):    
+def update_rule(h, i):
+    #print(f"h: {h}")
     if (h > 0):
         i *= 1
-    elif (h < 0):
+    elif (h <= 0):
         i *= -1
 
     return i;
@@ -72,8 +73,8 @@ energy = float('inf')
 while not stable_state:
     if (energy > stable_configuration_energy_value): 
         energy = -(calculate_configuration_energy(flatten_input, weights, True)) # calculates de energy of the system and apply the neurons update rule
-        #print(f"flatten_input: {flatten_input}")
-        #print(f"updated energy: {energy}")
+        print(f"flatten_input: {flatten_input}")
+        print(f"updated energy: {energy}")
     else:
         print(f"stable state [end]: {flatten_input}")
         stable_state = True
