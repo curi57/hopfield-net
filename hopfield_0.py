@@ -5,22 +5,30 @@ def flat(pattern):
             flatten.append(j);
     return flatten
 
-def calculate_configuration_energy(configuration, weights):
+
+def calculate_configuration_energy(configuration, weights, update = False):
     configuration_energy = 0
-    for i, idx_i in enumerate(configuration):
+    for idx_i, i in enumerate(configuration):
         h = 0
-        for j, idx_j in enumerate(configuration):
-            wij = weights[idx_i][idx_j]
+        for idx_j, j in enumerate(configuration):
+            wij = weights[idx_i][idx_j] # index out of range
             h += wij*i*j
-                                           
-        if (h > 0):
-            i *= 1
-        elif (h < 0):
-            i *= -1
-                                       
+        
+        if update:
+            i = update_rule(h, i)
+
         configuration_energy += h
 
     return configuration_energy
+
+
+def update_rule(h, i):    
+    if (h > 0):
+        i *= 1
+    elif (h < 0):
+        i *= -1
+
+    return i;
 
 
 # 1. Create the pattern to memorize
@@ -32,12 +40,23 @@ print(f"pattern: {flatten}")
 
 # 2. Calculate the weights between each of the possible neurons interactions (or the outer product with the vector itself)
 weights = []
-enum_flatten = enumerate(flatten)
-for i,idx_i in enum_flatten:
-    weights.append([i*j if idx_i != idx_j else 0 for j,idx_j in enum_flatten])
+
+counter_i = 0
+counter_j = 0
+for i in flatten:
+    n_weights = [] # what happens here if i do not copy the value?
+    for j in flatten:
+        wij = 0 if counter_i == counter_j else i*j
+        n_weights.append(wij)
+        counter_j += 1
+
+    weights.append(n_weights.copy())
+    counter_i += 1
+    counter_j = 0
+
 print(f"weights: {weights}")
 
-stable_configuration_energy_value = calculate_configuration_energy(flatten, weights)
+stable_configuration_energy_value = -(calculate_configuration_energy(flatten, weights)) 
 print(f"stable_configuration_energy_value: {stable_configuration_energy_value}")
 
 random_input = [[-1, -1, 1],
@@ -45,13 +64,19 @@ random_input = [[-1, -1, 1],
                 [1, -1, -1]]
 flatten_input = flat(random_input)
 print(f"input {flatten_input}")
+current_configuration_energy_value = -(calculate_configuration_energy(flatten_input, weights))
+print(f"current energy: {current_configuration_energy_value}")
 
-is_stable_state = False
-while is_stable_state:
-    energy = calculate_configuration_energy(flatten_input, weights)
-    if (energy == stable_configuration_energy_value): 
+stable_state = False
+energy = float('inf')
+while not stable_state:
+    if (energy > stable_configuration_energy_value): 
+        energy = -(calculate_configuration_energy(flatten_input, weights, True)) # calculates de energy of the system and apply the neurons update rule
+        #print(f"flatten_input: {flatten_input}")
+        #print(f"updated energy: {energy}")
+    else:
         print(f"stable state [end]: {flatten_input}")
-        is_stable_state = True
+        stable_state = True
 
     
     
