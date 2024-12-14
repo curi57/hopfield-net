@@ -1,20 +1,18 @@
+from typing import Dict
 
+from configuration import Configuration
 
 
 class EnergyLandscape():
 
     def __init__(self):
-        print("Initializing the energy landscape")
-        self.energy_map = {}
+        self.map : Dict[int, int] = {}
     
-    # um dicionário que mapeia valores energéticos para o id da configuração
-    def add_point(self, configuration):
-        configuration.calculate_self_energy()
+    def add_point(self, configuration : Configuration):
+        self.map[configuration.energy] = configuration.id
 
-        self.energy_map[configuration.energy] = configuration.id
-
-    def find_point(self):
-        print("Finding point")
+    #def find_point(self):
+    #    print("Finding point")
 
 
 
